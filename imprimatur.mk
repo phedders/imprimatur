@@ -75,12 +75,13 @@ imprimatur-basic-checks: imprimatur-format imprimatur-refs imprimatur-fixmes \
                  imprimatur-writemes imprimatur-unrevised
 
 imprimatur-master-menu:
-	@emacs -batch -l $(IMPRIMATUR_MODULE_DIR)/mastermenu.el -f make-master-menu $(imprimatur_INPUT)
+	@emacs -batch -l $(top_srcdir)/$(IMPRIMATUR_MODULE_DIR)/mastermenu.el \
+               -f make-master-menu $(imprimatur_INPUT)
 
 imprimatur-untabify:
-	@emacs -batch -l $(IMPRIMATUR_MODULE_DIR)/untabify.el $(imprimatur_INPUT)
+	@emacs -batch -l $(top_srcdir)/$(IMPRIMATUR_MODULE_DIR)/untabify.el \
+               $(imprimatur_INPUT)
 
 imprimatur-final: imprimatur-untabify imprimatur-master-menu
-
 
 

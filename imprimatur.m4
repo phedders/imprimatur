@@ -45,5 +45,7 @@ AC_DEFUN([IMPRIMATUR_INIT],[
  ],[
   RENDITION=$2
  ])
+ AC_SUBST([IMPRIMATUR_MAKEINFOFLAGS],
+          ['-I $(top_srcdir)/imprimaturdir -D $(RENDITION)'])
  m4_popdef([imprimaturdir])
 ])

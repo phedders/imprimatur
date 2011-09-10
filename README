@@ -67,7 +67,7 @@ in your configure.ac
 Apply the following changes to the Makefile.am located in the
 subdirectory where you have your Texinfo sources:
 
-1. To AM_MAKEINFOFLAGS add -I $(top_srcdir)/@IMPRIMATUR_MODULE_DIR@
+1. To AM_MAKEINFOFLAGS add @IMPRIMATUR_MAKEINFOFLAGS@
 2. Define the variable `imprimatur_INPUT'.  It must contain the
 names of Texinfo sources to be verified by Imprimatur.  Normally,
 the following definition is sufficient:
@@ -90,7 +90,7 @@ variable:
 
 For example:
   
-  AM_MAKEINFOFLAGS = -I $(top_srcdir)/@IMPRIMATUR_MODULE_DIR@
+  AM_MAKEINFOFLAGS = @IMPRIMATUR_MAKEINFOFLAGS@
   imprimatur_INPUT=$(info_TEXINFOS) $(foo_TEXINFOS)
   include ../@IMPRIMATUR_MODULE_DIR@/imprimatur.mk
   CHECK_DOCS=$(top_srcdir)/@IMPRIMATUR_MODULE_DIR@/check-docs.sh
