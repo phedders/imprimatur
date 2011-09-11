@@ -57,8 +57,14 @@ imprimatur-writemes:
 	  rm $@-t; \
 	  false;\
 	else \
-          rm $@-t; \
+	   rm $@-t; \
 	fi
+
+imprimatur-empty-nodes:
+	@awk -f $(top_srcdir)/$(IMPRIMATUR_MODULE_DIR)/emptynodes.awk \
+         -v scriptname=$(top_srcdir)/$(IMPRIMATUR_MODULE_DIR)/emptynodes.awk \
+         -v makeinfoflags="$(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS)" \
+	        $(info_TEXINFOS)
 
 imprimatur-unrevised:
 	@grep -Hn @UNREVISED $(imprimatur_INPUT) > $@-t; \
@@ -72,7 +78,7 @@ imprimatur-unrevised:
 	fi
 
 imprimatur-basic-checks: imprimatur-format imprimatur-refs imprimatur-fixmes \
-                 imprimatur-writemes imprimatur-unrevised
+                 imprimatur-empty-nodes imprimatur-unrevised
 
 imprimatur-master-menu:
 	@emacs -batch -l $(top_srcdir)/$(IMPRIMATUR_MODULE_DIR)/mastermenu.el \

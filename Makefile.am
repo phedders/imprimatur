@@ -16,6 +16,7 @@
 
 EXTRA_DIST=\
  check-docs.sh\
+ emptynodes.awk\
  imprimatur.m4\
  imprimatur.mk\
  mastermenu.el\

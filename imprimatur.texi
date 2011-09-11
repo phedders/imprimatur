@@ -1,0 +1,317 @@
+\input texinfo @c -*-texinfo-*-
+@c %**start of header
+@setfilename imprimatur.info
+@settitle Imprimatur Manual
+@c %**end of header
+@setchapternewpage odd
+
+@c The UPDATED date is updated automatically by the Emacs magic at the
+@c end of this file.
+@set UPDATED 12 September 2011
+@set VERSION 1.0
+
+@include rendition.texi
+
+@defcodeindex op
+@defcodeindex fl
+
+@syncodeindex fn cp
+@syncodeindex vr cp
+@syncodeindex ky cp
+@syncodeindex pg cp
+@syncodeindex tp cp
+@syncodeindex op cp
+@syncodeindex fl cp
+
+@c @ovar(ARG)
+@c ----------
+@c The ARG is an optional argument.  To be used for macro arguments in
+@c their documentation (@defmac).
+@macro ovar{varname}
+@r{[}@var{\varname\}@r{]}@c
+@end macro
+
+@c @dvar(ARG, DEFAULT)
+@c -------------------
+@c The ARG is an optional argument, defaulting to DEFAULT.  To be used
+@c for macro arguments in their documentation (@defmac).
+@macro dvar{varname, default}
+@r{[}@var{\varname\} = @samp{\default\}@r{]}@c
+@end macro
+
+@copying
+Published by the Free Software Foundation,
+51 Franklin Street, Fifth Floor,
+Boston, MA 02110-1301 USA 
+
+Copyright @copyright{} 2011 Sergey Poznyakoff
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with any Front and Back-Cover.  A copy of the license
+is included in the section entitled ``GNU Free Documentation License''.
+@end copying
+
+@titlepage
+@title Imprimatur -- a Texinfo Document Checker
+@subtitle version @value{VERSION}, @value{UPDATED}
+@author Sergey Poznyakoff.
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@ifnothtml
+@page
+@summarycontents
+@page
+@end ifnothtml
+@contents
+
+@ifnottex
+@node Top
+@top Imprimatur
+
+This edition of the @cite{Imprimatur Manual}, last updated @value{UPDATED},
+documents @command{Imprimatur} Version @value{VERSION}.
+@end ifnottex
+
+@menu
+* Preface::
+* Intro::
+* Init::
+* Renditions::
+* Macros::
+* Rules::
+* Reporting Bugs::
+
+Appendices
+
+* Copying This Manual::  The GNU Free Documentation License.
+* Concept Index::        Index of Concepts.
+@end menu
+
+@node Preface
+@chapter Preface
+@WRITEME
+
+@node Intro
+@chapter Introduction
+@WRITEME
+
+@node Init
+@chapter Initialization
+@WRITEME
+
+@defmac IMPRIMATUR_INIT (@dvar{dir, imprimatur}, @ovar{rendition})
+@end defmac
+
+@defvr {Substitution Variable} IMPRIMATUR_MODULE_DIR
+@end defvr
+
+@defvr {Substitution Variable} IMPRIMATUR_MAKEINFOFLAGS
+@end defvr
+
+@node Renditions
+@chapter Renditions
+@WRITEME
+
+@defvr {Substitution Variable} RENDITION
+@end defvr
+
+@node Macros
+@chapter Texinfo Macros
+@WRITEME
+
+@defmac WRITEME
+@end defmac
+
+@defmac UNREVISED
+@end defmac
+
+@defmac FIXME (@var{text})
+@end defmac
+
+@defmac FIXME-ref (@var{text})
+@end defmac
+
+@defmac FIXME-xref (@var{text})
+@end defmac
+
+@defmac FIXME-pxref (@var{text})
+@end defmac
+
+@node Rules
+@chapter Makefile Rules
+@UNREVISED
+
+@flindex imprimatur.mk
+The file @file{imprimatur.mk} contains Makefile rules for verifying
+the Texinfo documents.  It should be included into @file{Makefile.am}
+located in the directory where Texinfo sources reside.  For example,
+if your documentation subdirectory is located at the same nesting
+level as the directory you cloned @command{imprimatur} into, then
+add the following statement:
+
+@example
+include ../@@IMPRIMATUR_MODULE_DIR@@/imprimatur.mk
+@end example
+
+The rules defined in @file{imprimatur.mk} operate on Texinfo documents
+listed in the variable @samp{imprimatur_INPUT}
+
+@defvr {Makefile Variable} imprimatur_INPUT
+Whitespace-delimited list of Texinfo source files to process.  It is
+often convenient to specidy source files via the
+@samp{@var{name}_TEXINFOS} Automake variables.  For example, if your
+main source has the name @file{myproj.texi}, then declare this
+variable as follows:
+
+@example
+imprimatur_INPUT=$(info_TEXINFOS) $(myproj_TEXINFOS)
+@end example
+@end defvr
+
+Once this variable is defined, you can use the following rules.
+
+@deffn {Makefile Rule} imprimatur-format
+Checks whether the files contain tabs (ASCII 9).  If so the following
+diagnostics is displayed:
+
+@example
+@cartouche
+Sources contain tabs; run make imprimatur-untabify
+@end cartouche
+@end example
+
+@xref{imprimatur-untabify}.
+@end deffn
+
+@deffn {Makefile Rule} imprimatur-refs
+Checks if the sources contain unresolved cross-references, i.e. any of
+the macros @samp{FIXME-ref}, @samp{FIXME-xref} or @samp{FIXME-pxref}
+(@pxref{Macros, FIXME-ref}).  If so, the prominent diagnostics is
+displayed and the rule exits with code 2.  For example:
+
+@example
+@cartouche
+Unresolved cross-references:
+mailfromd.texi:3535: existing categories
+mailfromd.texi:4951: optimizer
+mailfromd.texi:9899: debug configuration
+functions.texi:1273: filter chains
+@end cartouche
+@end example
+@end deffn
+
+@deffn {Makefile Rule} imprimatur-fixmes
+Check whether the sources contain @samp{@@FIXME} macros(@pxref{Macros,
+FIXME}).  If so, list the location of each @samp{@@FIXME} along with
+its content.  If the content has several lines, only first of them is
+displayed.  For example:
+
+@example
+@cartouche
+Unresolved FIXMEs:
+functions.texi:1518: Check references to 'Polling functions' anchor.
+functions.texi:1562: Give more details and references.
+functions.texi:2231: How to obtain negative
+@end cartouche
+@end example
+@end deffn
+
+@deffn {Makefile Rule} imprimatur-writemes
+Check whether the sources contain empty nodes, i.e. the ones marked
+with the @samp{@@WRITEME} macro(@pxref{Macros, WRITEME}).  If so,
+display locations of each @samp{@@WRITEME}, e.g.:
+
+@example
+@cartouche
+Empty nodes:
+calloutd.texi:6:@@WRITEME
+mfdbtool.texi:148:@@WRITEME
+@end cartouche
+@end example
+@end deffn
+
+@deffn {Makefile Rule} imprimatur-empty-nodes
+A sophisticated version of @samp{imprimatur-writemes}.  This rule
+reports nodes which do not have any text and nodes marked with
+the @samp{@@WRITEME} macro.
+
+Unlike the rest of rules, @samp{imprimatur-empty-nodes} analyzes files in
+@samp{$(info_TEXINFOS)}.  It reads each file and parses it, honoring
+any @samp{@@include} statements.
+
+This rule outputs to standard error the names and locations of empty
+nodes.  For nodes marked with the @samp{@@WRITEME} macro, the location
+shows the place where the macro was encountered and the actual node
+name is prefixed with @samp{(@@WRITEME)}, as shown in the example below:
+
+@example
+@cartouche
+Empty nodes:
+./calloutd.texi:6: calloutd
+./mfdbtool.texi:148: Configuring mfdbtool
+./upgrade.texi:31: (@@WRITEME) Upgrading from 7.0 to 8.0
+@end cartouche
+@end example
+@end deffn
+
+@deffn {Makefile Rule} imprimatur-unrevised
+Check whether the sources contain nodes which need revision, i.e. the
+ones marked with the @samp{@@UNREVISED} macro(@pxref{Macros,
+UNREVISED}).  If so, display locations of each @samp{@@UNREVISED}, e.g.:
+
+@example
+@cartouche
+Unrevised nodes:
+mailfromd.texi:2567:@@UNREVISED
+mailfromd.texi:2694:@@UNREVISED
+@end cartouche
+@end example
+@end deffn
+
+@deffn {Makefile Rule} imprimatur-basic-checks
+Runs the following rules in that order: @samp{imprimatur-format},
+@samp{imprimatur-refs}, @samp{imprimatur-fixmes},
+@samp{imprimatur-empty-nodes}, @samp{imprimatur-unrevised}.
+@end deffn
+
+@deffn {Makefile Rule} imprimatur-master-menu
+@end deffn
+
+@anchor{imprimatur-untabify}
+@deffn {Makefile Rule} imprimatur-untabify
+@end deffn
+
+@deffn {Makefile Rule} imprimatur-final
+Runs @samp{imprimatur-untabify} and @samp{imprimatur-master-menu}.
+@end deffn
+
+@node Reporting Bugs
+@chapter Reporting Bugs
+@WRITEME
+
+@node Copying This Manual
+@appendix GNU Free Documentation License
+@include fdl.texi
+
+@node Concept Index
+@unnumbered Concept Index
+
+This is a general index of all issues discussed in this manual:
+
+@printindex cp
+
+@bye
+
+Local Variables:
+eval: (add-hook 'write-file-hooks 'time-stamp)
+time-stamp-start: "@set UPDATED "
+time-stamp-line-limit: 20
+time-stamp-format: "%:d %:B %:y"
+time-stamp-end: "\n"
+compile-command: "makeinfo imprimatur.texi"
+End:
