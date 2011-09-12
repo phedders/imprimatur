@@ -22,3 +22,55 @@ EXTRA_DIST=\
  mastermenu.el\
  rendition.texi\
  untabify.el
+
+info_TEXINFOS=
+TEXI2DVI=texi2dvi -t '@set $(RENDITION)' -E
+
+if IMPRIMATUR_COND_MAKEDOC
+EXTRA_DIST+=imprimatur.texi
+# FIXME: How about gendocs_template?
+
+info_TEXINFOS+=imprimatur.texi
+imprimatur_TEXINFOS=rendition.texi fdl.texi
+
+clean-local:
+	@rm -rf manual
+
+AM_MAKEINFOFLAGS = @IMPRIMATUR_MAKEINFOFLAGS@
+imprimatur_INPUT=$(info_TEXINFOS) $(imprimatur_TEXINFOS)
+include imprimatur.mk
+CHECK_DOCS=$(top_srcdir)/@IMPRIMATUR_MODULE_DIR@/check-docs.sh
+
+check-rules:
+	@$(CHECK_DOCS) "Makefile rules" \
+	'/^imprimatur-.*:/s/:.*//p' \
+	's/@deffn {Makefile Rule}  *//p' \
+	imprimatur.mk -- \
+	$(MAKEINFO) $(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS) -I $(srcdir) -E - \
+		$(info_TEXINFOS) 
+
+check-macros:
+	@$(CHECK_DOCS) "Texinfo macros" \
+	'/@macro/s/@macro  *\([-a-zA-Z][-a-zA-Z0-9]*\).*/\1/p' \
+	'/@defmac/s/@defmac  *\([-a-zA-Z][-a-zA-Z0-9]*\).*/\1/p' \
+	rendition.texi -- \
+	$(MAKEINFO) $(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS) -I $(srcdir) -E - \
+		$(info_TEXINFOS) 
+
+check-docs: imprimatur-basic-checks check-rules check-macros
+
+GENDOCS=gendocs.sh 
+
+.PHONY: manual
+manual:
+	TEXINPUTS=$(srcdir):$(top_srcdir)/build-aux:$(TEXINPUTS) \
+	 MAKEINFO="$(MAKEINFO) $(MAKEINFOFLAGS) $(AM_MAKEINFOFLAGS)" \
+	 TEXI2DVI="$(TEXI2DVI)" \
+         TEXI2HTML="texi2html $(AM_MAKEINFOFLAGS)" \
+	 $(GENDOCS) --texi2html imprimatur 'Imprimatur manual'
+
+manual.tar.bz2: manual
+	tar cfj manual.tar.bz2 manual
+
+man-tar: manual.tar.bz2
+endif

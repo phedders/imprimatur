@@ -7,9 +7,12 @@
 
 @c The UPDATED date is updated automatically by the Emacs magic at the
 @c end of this file.
-@set UPDATED 12 September 2011
+@set UPDATED 13 September 2011
 @set VERSION 1.0
 
+@c This document contains examples of all the rendition macros, so it
+@c must be rendered in PROOF mode.
+@set PROOF
 @include rendition.texi
 
 @defcodeindex op
@@ -22,22 +25,6 @@
 @syncodeindex tp cp
 @syncodeindex op cp
 @syncodeindex fl cp
-
-@c @ovar(ARG)
-@c ----------
-@c The ARG is an optional argument.  To be used for macro arguments in
-@c their documentation (@defmac).
-@macro ovar{varname}
-@r{[}@var{\varname\}@r{]}@c
-@end macro
-
-@c @dvar(ARG, DEFAULT)
-@c -------------------
-@c The ARG is an optional argument, defaulting to DEFAULT.  To be used
-@c for macro arguments in their documentation (@defmac).
-@macro dvar{varname, default}
-@r{[}@var{\varname\} = @samp{\default\}@r{]}@c
-@end macro
 
 @copying
 Published by the Free Software Foundation,
@@ -79,17 +66,20 @@ documents @command{Imprimatur} Version @value{VERSION}.
 
 @menu
 * Preface::
-* Intro::
-* Init::
-* Renditions::
-* Macros::
-* Rules::
-* Reporting Bugs::
+* Intro::               Introduction to Imprimatur.
+* Renditions::          Renditions Define How the Document is Printed.
+* Quick Start::         Integrating and Using Imprimatur
+* Init::                Initializing the Package.
+* Macros::              Texinfo Macros for Annotating the Document.
+* Rules::               Makefile Rules Help Verify the Document.
+
+* Reporting Bugs::      How to Report Bugs and Suggestions.
 
 Appendices
 
 * Copying This Manual::  The GNU Free Documentation License.
 * Concept Index::        Index of Concepts.
+
 @end menu
 
 @node Preface
@@ -98,54 +88,480 @@ Appendices
 
 @node Intro
 @chapter Introduction
+@cindex annotation
+Creating a documentation for software is a difficult task which is
+equally important as writing the software itself.  In particular, it
+is important that the documentation be consistent with the software it
+describes and that it cover all aspects of its functionality and usage.
+
+Usually the documentation, as well as the program itself, is not
+written in one pass.  Rather it is created in a series of edits
+and proofreadings.  During this process the author often needs to
+insert @dfn{annotations} which are not intended for the end user,
+but which, instead, serve as a reminder for the author himself about
+pending editing tasks.  One may, for example, put a note saying that
+certain paragraph needs to be reworded or that some feature needs to
+be explained in greater detail and return to that note later in order
+to fix it.  Quite often several authors take part in creating the
+documentation.  In this case such annotations help coordinate their
+work.
+
+When preparing the document for publishing, it is important to make
+sure that no such notes has been revised and none of them remain in
+the document.
+
+Keeping documentation in sync with the software is another
+challenging task.  After adding a new feature the author not always
+edits the documentation to reflect that.  In fact, quite often it is
+impossible or undesirable, because the feature may imply some further
+changes to another parts of the program, and the author may prefer to
+update the docs when all the changes will have been finished.  In
+this case, putting annotations in appropriate places of the document
+will remind him that certain parts of it have become inaccurate and
+need to be attended later.
+
+@cindex imprimatur
+@cindex Texinfo
+@command{Imprimatur}@footnote{@samp{Imprimatur} is Latin for @samp{let
+it be printed}.  Historically, this term was used to indicate that
+there are no obstacles for printing a book.} aims to facilitate all
+these tasks.  It is intended for documents written in Texinfo
+(@pxref{Top, Texinfo,,texinfo,Texinfo Manual}).  The package provides
+a mechanism for editor's annotations and a set of Makefile rules for
+verifying the consistency of the document.
+
+@node Renditions
+@chapter Renditions
+@cindex rendition, defined
+The basic concept used in @command{Imprimatur} is the document
+@dfn{rendition}.  The rendition defines how much editor's information
+and annotations should appear in the resulting document.  There are
+three possible renditions:
+
+@defvr {Rendition} PROOF
+This rendition is used for proofreading the document.  It inserts all
+annotations in a prominent form, which makes it easy to revise the document.
+@end defvr
+
+@defvr {Rendition} DISTRIB
+This rendition is intended for the documentation distributed with the
+packaged versions and its online copies on the Web.  This rendition
+inserts most important annotations, so that the reader is aware about
+which parts of the document are not fully revised for adequacy.
+Dangling cross-references are also prominently marked as such
+(@pxref{Dangling cross-reference}).
+@end defvr
+
+@defvr {Rendition} PUBLISH
+This rendition is intended for publishing the printed copies of the
+documentation.  It is supposed that by the time the document is ready
+for publishing, all editor's and proofreader's annotations and
+dangling references have been resolved and removed from the document.
+Consequently, the use of annotation macros in this rendition results
+in translation errors.  This helps prevent publishing incomplete or
+inaccurate documentation.
+@end defvr
+
+@vrindex RENDITION
+Default rendition is determined when configuring the package.  It can
+be redefined when building the output, by using the @samp{RENDITION}
+Makefile variable, e.g.:
+
+@example
+$ make RENDITION=PUBLISH
+@end example
+
+@node Quick Start
+@chapter Integrating and Using Imprimatur
+@UNREVISED
+
+@menu
+* Integration::         How to Integrate Imprimatur to a Project.
+* Usage::               How to Use Imprimatur
+@end menu
+
+@node Integration
+@section Integration
+@command{Imprimatur} is designed to be used as a Git submodule.  If
+your project uses @command{git}, integrating it is quite
+straightforward.
+
+@enumerate 1
+@item
+@cindex submodule
+@cindex git
+First of all, you need to declare a submodule.  To do so, change into
+the top source directory of your project and run:
+
+@example
+git submodule add git://git.gnu.org.ua/imprimatur.git imprimatur
+git submodule init
+@end example
+
+This step needs to be done only once.  The first command will clone
+the project to the directory @file{imprimatur}.  If you want another
+name or need to place it deeper in the directory hierarchy, change the
+last argument accordingly.  For example, to place @command{Imprimatur}
+to the directory @file{doc/aux} use:
+
+@example
+git submodule add git://git.gnu.org.ua/imprimatur.git doc/aux
+@end example
+
+The second command initializes the submodule.
+
+@item
+@cindex Makefile.am, top level
+@vrindex ACLOCAL_AMFLAGS
+@vrindex SUBDIRS
+Next step is to edit the top-level @file{Makefile.am}.  Add @option{-I
+imprimatur} to the @samp{ACLOCAL_AMFLAGS} variable, and
+@samp{imprimatur} directory to the @samp{SUBDIRS} variable.  For example:
+
+@example
+ACLOCAL_AMFLAGS = -I m4 -I imprimatur
+SUBDIRS = imprimatur
+@end example
+
+If you chose another directory name during the first step, use it
+instead of @samp{imprimatur} in the above example.
+
+@item
+@flindex configure.ac
+Next, you need to edit the @file{configure.ac} file and add a call to
+@samp{IMPRIMATUR_INIT}.  Normally no parameters are needed, just like
+that:
+
+@example
+IMPRIMATUR_INIT
+@end example
+
+However,if you cloned @command{Imprimatur} into a directory with
+another name, the actual directory name must be supplied as the first
+argument.  For example:
+
+@example
+IMPRIMATUR_INIT(doc/aux)
+@end example
+
+@xref{Init}, for a detailed description of the @samp{IMPRIMATUR_INIT}
+macro.
+
+@item
+@flindex doc/Makefile.am
+Now edit the file @file{Makefile.am} located in the subdirectory where
+you have your Texinfo sources.
+
+@enumerate A
+@item
+@vrindex AM_MAKEINFOFLAGS
+@vrindex IMPRIMATUR_MAKEINFOFLAGS
+To the value of @samp{AM_MAKEINFOFLAGS} variable add
+@samp{@@IMPRIMATUR_MAKEINFOFLAGS@@}.  This will inform
+@command{makeinfo} and related tools about the location of
+@command{Imprimatur} files (in particular, @file{rendition.texi}) and
+the selected rendition (@pxref{Renditions}).
+
+@item
+@vrindex imprimatur_INPUT
+Define the variable @samp{imprimatur_INPUT}.  It must contain the
+names of Texinfo sources to be verified by @command{Imprimatur}.
+Normally, the following definition is sufficient:
+
+@example
+imprimatur_INPUT=$(info_TEXINFOS) $(@var{base}_TEXINFOS)
+@end example
+
+@noindent
+where @var{base} stands for the base name of your Texinfo document (e.g.
+@samp{foo}, if it is named @file{foo.texi}).
+
+@xref{Rules,imprimatur_INPUT}, for a discussion of this variable and
+its purposes.
+
+@item
+@flindex imprimatur.mk
+Include the file @file{imprimatur.mk} from the @command{Imprimatur}
+directory using relative addressing.  For example, if your
+documentation subdirectory is located at the same nesting level 
+as the directory you cloned @command{Imprimatur} to, use:
+
+@example
+include ../imprimatur/imprimatur.mk
+@end example
+
+@emph{Do not use Automake substitutions nor Makefile variables in the
+argument to include.}
+
+@item
+@flindex check-docs.sh
+If you plan to use the @file{check-docs.sh} script, define a Makeinfo
+variable to access it, e.g.:
+
+@example
+CHECK_DOCS=$(top_srcdir)/@@IMPRIMATUR_MODULE_DIR@@/check-docs.sh
+@end example
+@FIXME{Describe check-docs.sh.}
+@end enumerate
+
+Let's summarize this step by an example:
+
+@example
+AM_MAKEINFOFLAGS = @@IMPRIMATUR_MAKEINFOFLAGS@@
+imprimatur_INPUT=$(info_TEXINFOS) $(foo_TEXINFOS)
+include ../imprimatur/imprimatur.mk
+CHECK_DOCS=$(top_srcdir)/@@IMPRIMATUR_MODULE_DIR@@/check-docs.sh
+@end example
+@end enumerate
+
+@node Usage
+@section How to Use Imprimatur
 @WRITEME
 
 @node Init
 @chapter Initialization
-@WRITEME
 
-@defmac IMPRIMATUR_INIT (@dvar{dir, imprimatur}, @ovar{rendition})
-@end defmac
+@deffn {Autoconf Macro} IMPRIMATUR_INIT (@var{dir}, @var{options})
+Initializes @command{Imprimatur} framework.  Both arguments are
+optional.  The @var{dir} argument, if supplied, specifies the
+directory you cloned @command{Imprimatur} into.  It defaults to
+@samp{imprimatur}, so that if you follow the default setup described
+in @ref{Usage} you don't need to supply this argument.
+
+The @var{options} argument is a whitespace-separated list of options.
+Following options are recognized:
+
+@cindex rendition, default
+@cindex default rendition
+@defvr {Option} PROOF
+Set the default rendition to @samp{PROOF}.
+@end defvr
+
+@defvr {Option} DISTRIB
+Set the default rendition to @samp{DISTRIB}.
+@end defvr
+
+@defvr {Option} PUBLISH
+Set the default rendition to @samp{PUBLISH}.
+@end defvr
+
+@vindex VERSION
+@kindex AC_INIT
+If none of these three options is given, @command{IMPRIMATUR_INIT}
+will select default rendition based on the version number of the
+hosting package, i.e. the @samp{VERSION} variable, as set
+by @code{AC_INIT} macro.  The version number should consist of
+up to three integers, separated by dots.  The first integer is the
+@dfn{major number}, the second one is the @dfn{minor number}, and the
+third one is the @dfn{patchlevel}.  Given that, the following
+algorithm is used:
+
+@enumerate 1
+@item
+If patchlevel is present, then:
+
+@enumerate a
+@item
+If it is less than 50, @samp{DISTRIB} rendition is selected.
+
+@item
+Otherwise, the package is considered an alpha release and @samp{PROOF}
+rendition is selected.
+@end enumerate
+
+@item
+If patchlevel is not present, @samp{DISTRIB} is used.
+@end enumerate
+
+@defvr {Option} frenchspacing
+Assume French sentence spacing.  @xref{frenchspacing,,,texinfo,
+Texinfo Manual}, for a description of the two possible sentence
+spacings.
+
+By default, American sentence spacing is assumed.  This option affects
+the @samp{imprimatur-check-sentence-spacing} Makefile rule, which
+verifies whether sentence spacing is used consistently throughout the
+document.  @xref{imprimatur-check-sentence-spacing}.
+@end defvr
+
+@defvr {Option} makedoc
+Enables Makefile rules for building @command{Imprimatur}
+documentation.  This is intended mostly for @command{Imprimatur}
+maintainers, but you may use this option to build your own, perhaps
+customized, copies of this manual.
+@end defvr
+@end deffn
+
+The @code{IMPRIMATUR_INIT} macro defines several substitution
+variables, which you can use in your @file{Makefile.am} files.
 
 @defvr {Substitution Variable} IMPRIMATUR_MODULE_DIR
+The name of the directory @command{Imprimatur} was cloned into.  This
+name is relative to the top source directory.  It helps address files
+from the @command{Imprimatur} subdirectory.  For example:
+
+@example
+CHECK_DOCS=$(top_srcdir)/@@IMPRIMATUR_MODULE_DIR@@/check-docs.sh
+@end example
 @end defvr
 
+@vindex AM_MAKEINFOFLAGS
 @defvr {Substitution Variable} IMPRIMATUR_MAKEINFOFLAGS
-@end defvr
+Additional options for @command{makeinfo} and compatible tools, which
+inform them about location of @command{Imprimatur} Texinfo files.  You
+need to add this variable to your @samp{AM_MAKEINFOFLAGS} variable:
 
-@node Renditions
-@chapter Renditions
-@WRITEME
+@example
+AM_MAKEINFOFLAGS = @@IMPRIMATUR_MAKEINFOFLAGS@@
+@end example
+@end defvr
 
 @defvr {Substitution Variable} RENDITION
+Default rendition.  You may need this variable to inform various tools
+about the selected rendition level, e.g.:
+
+@example
+TEXI2DVI=texi2dvi -t '@set $(RENDITION)'
+@end example
+
+Note, that @samp{IMPRIMATUR_MAKEINFOFLAGS} includes the option
+@option{-D $(RENDITION}, so you don't need to define it explicitly if
+the tool in question uses this variable.
 @end defvr
 
 @node Macros
 @chapter Texinfo Macros
-@WRITEME
+@flindex rendition.texi
+The file @file{rendition.texi} defines helper macros which serve to
+annotate Texinfo sources.  Expansion of these macros depends on the
+rendition of the document.
 
 @defmac WRITEME
+Use this macro to mark the nodes which need to be written.  Normally,
+you would place it immediately after the sectioning command.  When in
+@samp{PUBLISH} rendition, this macro forces compilation error, because
+one would hardly want empty nodes to appear in the published document.
+Otherwise, it produces the following text:
+
+@quotation
+@example-WRITEME
+@end quotation
 @end defmac
 
 @defmac UNREVISED
+Use this macro to mark the nodes which need a revision.  Normally,
+you would place it immediately after the sectioning command.
+
+This macro acts similarly to @samp{@@WRITEME}.  When in
+@samp{PUBLISH} rendition, it forces a compilation error.  In
+@samp{PROOF} and @samp{DISTRIB} renditions, it produces the following
+expansion:
+
+@quotation
+@example-UNREVISED
+@end quotation
 @end defmac
 
 @defmac FIXME (@var{text})
+The @samp{@@FIXME} macro adds an editor's note to the file.  The
+argument @var{text} gives the content of the note.
+
+The purpose of the note is to draw attention of the author to
+something near this point of the document.  It is of some importance
+only to the author and reviewers of the document, so it produces
+output only in @samp{PROOF} revision.  Consider, for example, this
+text:
+
+@example
+The @@option@{-I @@var@{DIR@}@} command line option adds a directory 
+to the program's search path.  @@FIXME@{Document the initial value 
+of the search path.@}
+@end example
+
+In @samp{PROOF} rendition it would produce the following:
+
+@quotation
+The @option{-I @var{DIR}} command line option adds a directory to the
+program's search path.  @example-FIXME{Document the initial value of the
+search path.}
+@end quotation
 @end defmac
 
+The three macros below serve as placeholders for the corresponding
+cross-reference commands:
+
 @defmac FIXME-ref (@var{text})
+Use this macro for @samp{@@ref}-style cross-references.  In
+@samp{PUBLISH} rendition it is entirely equivalent to
+@code{@@ref@{@var{text}@}}.
 @end defmac
 
 @defmac FIXME-xref (@var{text})
+Use this macro for @samp{@@xref}-style cross-references.  In
+@samp{PUBLISH} rendition it is equivalent to
+@code{@@xref@{@var{text}@}}.
 @end defmac
 
 @defmac FIXME-pxref (@var{text})
+Use this macro for @samp{@@pxref}-style cross-references.  In
+@samp{PUBLISH} rendition it is entirely equivalent to
+@code{@@pxref@{@var{text}@}}.
 @end defmac
+
+@anchor{Dangling cross-reference}
+Use these macros when you need to add a cross-reference to a node or
+anchor which does not exist yet.  It will create a @dfn{dangling reference}
+which allows for translating the Texinfo source without errors, and at the
+same time serves as a reminder to you that the node referred to
+needs to be written (@pxref{Rules, imprimatur-fixmes}).  Once you
+create the node, you will fix the reference by simply removing the
+@samp{FIXME-} prefix after the @samp{@@} sign.
+
+To illustrate the output produced by these macros, consider the
+following Texinfo fragment:
+
+@example
+@@FIXME-xref@{regexp@}, for more information about regular expressions.
+@end example
+
+In @samp{PROOF} mode it produces:
+
+@quotation
+@example-FIXME-xref{regexp}, for more information about regular expressions.
+@end quotation
+
+In @samp{DISTRIB} rendition, the output is:
+
+@quotation
+@ifhtml
+@html
+See <span class="deadlink">regexp</span>,
+for more information about regular expressions.
+@end html
+@end ifhtml
+@ifnothtml
+See @i{regexp}, for more information about regular expressions.
+@end ifnothtml
+@end quotation
+
+@ignore
+The following macros are internal and are not supposed to be
+user-visible.  The following lines pacify the `check-macros'
+rule (see Makefile.am):
+
+@defmac FIXMEREF
+@defmac deadlink
+@defmac editorsnote
+@defmac example-FIXME
+@defmac example-FIXME-xref
+@defmac example-UNREVISED
+@defmac example-WRITEME
+@end ignore
 
 @node Rules
 @chapter Makefile Rules
-@UNREVISED
-
+@cindex rules, Makefile
+@cindex Makefile
 @flindex imprimatur.mk
 The file @file{imprimatur.mk} contains Makefile rules for verifying
 the Texinfo documents.  It should be included into @file{Makefile.am}
@@ -155,25 +571,35 @@ level as the directory you cloned @command{imprimatur} into, then
 add the following statement:
 
 @example
-include ../@@IMPRIMATUR_MODULE_DIR@@/imprimatur.mk
+include ../imprimatur/imprimatur.mk
 @end example
+
+Note that Automake is supposed to expand this statement, i.e. to
+replace it with the actual contents of @file{imprimatur.mk} in the
+resulting @file{Makefile.in}.  This is possible only if the argument
+to @code{include} is a literal string.  Do not use Automake
+substitutions nor Makefile variables in the argument to include.
 
 The rules defined in @file{imprimatur.mk} operate on Texinfo documents
 listed in the variable @samp{imprimatur_INPUT}
 
 @defvr {Makefile Variable} imprimatur_INPUT
+@vindex info_TEXINFOS
 Whitespace-delimited list of Texinfo source files to process.  It is
-often convenient to specidy source files via the
+often convenient to specify source files via the
 @samp{@var{name}_TEXINFOS} Automake variables.  For example, if your
-main source has the name @file{myproj.texi}, then declare this
-variable as follows:
+main source has the name @file{myproj.texi} it would normally be added
+to the Makefile variable @samp{info_TEXINFOS} and the variable
+@samp{myproj_TEXINFOS} would contain subordinate Texinfo sources
+it depends on.  Then, you would declare @samp{imprimatur_INPUT} 
+as follows:
 
 @example
 imprimatur_INPUT=$(info_TEXINFOS) $(myproj_TEXINFOS)
 @end example
 @end defvr
 
-Once this variable is defined, you can use the following rules.
+Once this variable is defined, you can use the following rules:
 
 @deffn {Makefile Rule} imprimatur-format
 Checks whether the files contain tabs (ASCII 9).  If so the following
@@ -206,7 +632,7 @@ functions.texi:1273: filter chains
 @end deffn
 
 @deffn {Makefile Rule} imprimatur-fixmes
-Check whether the sources contain @samp{@@FIXME} macros(@pxref{Macros,
+Checks whether the sources contain @samp{@@FIXME} macros(@pxref{Macros,
 FIXME}).  If so, list the location of each @samp{@@FIXME} along with
 its content.  If the content has several lines, only first of them is
 displayed.  For example:
@@ -214,7 +640,7 @@ displayed.  For example:
 @example
 @cartouche
 Unresolved FIXMEs:
-functions.texi:1518: Check references to 'Polling functions' anchor.
+functions.texi:1518: Check references to 'Polling functions' 
 functions.texi:1562: Give more details and references.
 functions.texi:2231: How to obtain negative
 @end cartouche
@@ -222,9 +648,9 @@ functions.texi:2231: How to obtain negative
 @end deffn
 
 @deffn {Makefile Rule} imprimatur-writemes
-Check whether the sources contain empty nodes, i.e. the ones marked
-with the @samp{@@WRITEME} macro(@pxref{Macros, WRITEME}).  If so,
-display locations of each @samp{@@WRITEME}, e.g.:
+Checks whether the sources contain empty nodes, i.e. nodes marked
+with the @samp{@@WRITEME} macro (@pxref{Macros, WRITEME}).  If so,
+it displays locations of each @samp{@@WRITEME}, e.g.:
 
 @example
 @cartouche
@@ -236,8 +662,8 @@ mfdbtool.texi:148:@@WRITEME
 @end deffn
 
 @deffn {Makefile Rule} imprimatur-empty-nodes
-A sophisticated version of @samp{imprimatur-writemes}.  This rule
-reports nodes which do not have any text and nodes marked with
+An improved version of @samp{imprimatur-writemes}.  This rule
+reports nodes which do not have any text and those marked with
 the @samp{@@WRITEME} macro.
 
 Unlike the rest of rules, @samp{imprimatur-empty-nodes} analyzes files in
@@ -245,8 +671,8 @@ Unlike the rest of rules, @samp{imprimatur-empty-nodes} analyzes files in
 any @samp{@@include} statements.
 
 This rule outputs to standard error the names and locations of empty
-nodes.  For nodes marked with the @samp{@@WRITEME} macro, the location
-shows the place where the macro was encountered and the actual node
+nodes.  For nodes marked with the @samp{@@WRITEME} macro, location
+refers to the place where the macro was encountered and the actual node
 name is prefixed with @samp{(@@WRITEME)}, as shown in the example below:
 
 @example
@@ -260,7 +686,7 @@ Empty nodes:
 @end deffn
 
 @deffn {Makefile Rule} imprimatur-unrevised
-Check whether the sources contain nodes which need revision, i.e. the
+Checks whether the sources contain nodes which need revision, i.e. the
 ones marked with the @samp{@@UNREVISED} macro(@pxref{Macros,
 UNREVISED}).  If so, display locations of each @samp{@@UNREVISED}, e.g.:
 
@@ -273,17 +699,71 @@ mailfromd.texi:2694:@@UNREVISED
 @end example
 @end deffn
 
+@anchor{imprimatur-check-sentence-spacing}
+@deffn {Makefile Rule} imprimatur-check-sentence-spacing
+Checks if the sentence spacing is correct throughout the sources.  By
+default, American sentence spacing is assumed.  French sentence
+spacing is used if @code{IMPRIMATUR_INIT} was called with the
+@samp{frenchspacing} option (@pxref{Init, frenchspacing}).
+
+If the sentence spacing is wrong, this rule displays the following
+diagnostics: 
+
+@example
+@group
+Sources contain single-space sentence separators.
+Run make imprimatur-fix-sentence-spacing to fix.
+@end group
+@end example
+
+If French spacing is declared, the diagnostics will read:
+
+@example
+@group
+Sources contain double-space sentence separators.
+Run make imprimatur-fix-sentence-spacing to fix.
+@end group
+@end example
+@end deffn
+
+@deffn {Makefile Rule} imprimatur-fix-sentence-spacing
+Fixes sentence spacing.  The action of this rule depends on the
+setting of @samp{frenchspacing} option (@pxref{Init, frenchspacing}).
+@end deffn
+
 @deffn {Makefile Rule} imprimatur-basic-checks
-Runs the following rules in that order: @samp{imprimatur-format},
-@samp{imprimatur-refs}, @samp{imprimatur-fixmes},
-@samp{imprimatur-empty-nodes}, @samp{imprimatur-unrevised}.
+Runs the following rules in that order:
+
+@example
+imprimatur-format
+imprimatur-check-sentence-spacing
+imprimatur-refs
+imprimatur-fixmes
+imprimatur-empty-nodes
+imprimatur-unrevised
+@end example
 @end deffn
 
 @deffn {Makefile Rule} imprimatur-master-menu
+@vrindex info_TEXINFOS
+Creates a master menu for each Texinfo file in
+@samp{$@{info_TEXINFOS@}}, taking into account included files.
+
+This rule uses @command{Emcas} to create a master menu that follows
+the top node.  The master menu includes every entry from all the other
+menus.  It replaces any existing ordinary menu that follows the top
+node.
+
+The effect of this rule differs from that of
+@code{texinfo-master-menu} (@pxref{Updating
+commands,texinfo-master-menu,,texinfo,Texinfo Manual}) in that it
+takes into account included Texinfo files.
 @end deffn
 
 @anchor{imprimatur-untabify}
 @deffn {Makefile Rule} imprimatur-untabify
+Converts all tabs in Texinfo files to multiple spaces, preserving
+columns.  This rule uses @command{emacs} to do the job.
 @end deffn
 
 @deffn {Makefile Rule} imprimatur-final
@@ -292,7 +772,17 @@ Runs @samp{imprimatur-untabify} and @samp{imprimatur-master-menu}.
 
 @node Reporting Bugs
 @chapter Reporting Bugs
-@WRITEME
+Send bug reports and suggestions to @email{gray+imprimatur@@gnu.org.ua}.
+
+If you think you've found a bug, please be sure to include maximum
+information available to reliably reproduce, or at least to
+analyze it.  Please, include the version of the package you are using
+and a description of the bug: what you did, what result did you get
+and how it differs from what you expected.  If possible, include a
+short test case with the steps needed to reproduce the bug.
+
+Any errors, typos or omissions found in this manual also qualify as
+bugs.  Please report them, if you happen to find any.
 
 @node Copying This Manual
 @appendix GNU Free Documentation License
@@ -313,5 +803,4 @@ time-stamp-start: "@set UPDATED "
 time-stamp-line-limit: 20
 time-stamp-format: "%:d %:B %:y"
 time-stamp-end: "\n"
-compile-command: "makeinfo imprimatur.texi"
 End:

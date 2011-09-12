@@ -23,6 +23,7 @@ imprimatur-format:
 imprimatur-refs:
 	@for file in $(imprimatur_INPUT); \
 	do \
+          grep -q '@c imprimatur-ignore' $$file && continue; \
 	  sed -e = $$file | \
            sed -n 'N;/@FIXME-.*ref/{s/\(^[0-9][0-9]*\).*@FIXME-.*ref{\([^}]*\)}.*/'$$file':\1: \2/gp}'; \
 	done > $@-t; \
@@ -37,6 +38,7 @@ imprimatur-refs:
 imprimatur-fixmes:
 	@for file in $(imprimatur_INPUT); \
 	do \
+          grep -q '@c imprimatur-ignore' $$file && continue; \
 	  sed -e = $$file | \
            sed -n 'N;/@FIXME{/{s/\(^[0-9][0-9]*\).*@FIXME{\([^}]*\).*/'$$file':\1: \2/gp}'; \
 	done > $@-t; \
@@ -50,7 +52,8 @@ imprimatur-fixmes:
 	fi
 
 imprimatur-writemes:
-	@grep -Hn @WRITEME $(imprimatur_INPUT) > $@-t; \
+	@files=`grep -c '@c imprimatur-ignore' $(imprimatur_INPUT) | sed -n 's/:0$$//p'`; \
+	test -n "$$files" && grep -Hn '^[ \t]*@WRITEME' $$files > $@-t; \
 	if [ -s $@-t ]; then \
 	  echo "Empty nodes:"; \
 	  cat $@-t; \
@@ -67,7 +70,8 @@ imprimatur-empty-nodes:
 	        $(info_TEXINFOS)
 
 imprimatur-unrevised:
-	@grep -Hn @UNREVISED $(imprimatur_INPUT) > $@-t; \
+	@files=`grep -c '@c imprimatur-ignore' $(imprimatur_INPUT) | sed -n 's/:0$$//p'`; \
+	grep -Hn '^[ \t]*@UNREVISED' $$files > $@-t; \
 	if [ -s $@-t ]; then \
 	  echo "Unrevised nodes:"; \
 	  cat $@-t; \
@@ -77,12 +81,46 @@ imprimatur-unrevised:
           rm $@-t; \
 	fi
 
-imprimatur-basic-checks: imprimatur-format imprimatur-refs imprimatur-fixmes \
+if IMPRIMATUR_COND_FRENCHSPACING
+imprimatur-check-sentence-spacing:
+	@if grep -q '\.  [@A-Z]' $(imprimatur_INPUT); then \
+	   echo >&2 "Sources contain double-space sentence separators."; \
+	   echo >&2 "Run make imprimatur-fix-sentence-spacing to fix."; \
+	fi
+
+imprimatur-fix-sentence-spacing:
+	@for file in $(imprimatur_INPUT); \
+	do \
+	  if grep -q '\.  [@A-Z]' $$file; then \
+	    mv $$file $${file}~; \
+	    sed -r 's/\.  ([@A-Z])/. \1/g' $${file}~ > $$file; \
+	  fi; \
+	done
+else
+imprimatur-check-sentence-spacing:
+	@if grep -q '\. [@A-Z]' $(imprimatur_INPUT); then \
+		echo >&2 "Sources contain single-space sentence separators."; \
+		echo >&2 "Run make imprimatur-fix-sentence-spacing to fix."; \
+	fi
+
+imprimatur-fix-sentence-spacing:
+	@for file in $(imprimatur_INPUT); \
+	do \
+	  if grep -q '\. [@A-Z]' $$file; then \
+	    mv $$file $${file}~; \
+	    sed -r 's/\. ([@A-Z])/.  \1/g' $${file}~ > $$file; \
+	  fi; \
+	done
+endif
+
+
+imprimatur-basic-checks: imprimatur-format imprimatur-check-sentence-spacing \
+                 imprimatur-refs imprimatur-fixmes \
                  imprimatur-empty-nodes imprimatur-unrevised
 
 imprimatur-master-menu:
 	@emacs -batch -l $(top_srcdir)/$(IMPRIMATUR_MODULE_DIR)/mastermenu.el \
-               -f make-master-menu $(imprimatur_INPUT)
+               -f make-master-menu $(info_TEXINFOS)
 
 imprimatur-untabify:
 	@emacs -batch -l $(top_srcdir)/$(IMPRIMATUR_MODULE_DIR)/untabify.el \

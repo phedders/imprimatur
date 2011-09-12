@@ -1,4 +1,4 @@
-@c This file is part of Imprimatur.
+@c This file is part of Imprimatur. imprimatur-ignore
 @c Copyright (C) 2001-2011 Sergey Poznyakoff
 @c
 @c Imprimatur is free software; you can redistribute it and/or modify
@@ -13,6 +13,8 @@
 @c
 @c You should have received a copy of the GNU General Public License
 @c along with Imprimatur.  If not, see <http://www.gnu.org/licenses/>.
+
+@c imprimatur-ignore
 
 @c ======================================================================
 @c This file implements Fra@,{c}ois Pinard's concept of 'renditions':
@@ -198,22 +200,67 @@ otherwise inaccurate.  This message will disappear, once this node revised.}
 @c @FIXME-ref{node} -- produces a @ref-style reference to undefined
 @c node.
 @c ------------------------------------------------------------------
+@ifset PUBLISH
+@macro FIXME-ref{string}
+@ref{string}
+@end macro
+@end ifset
+
+@ifclear PUBLISH
 @macro FIXME-ref{string}
 @FIXMEREF{,\string\}
 @end macro
+@end ifclear
 
 @c ------------------------------------------------------------------
 @c @FIXME-pxref{node} -- produces a @pxref-style reference to
 @c undefined node.
 @c ------------------------------------------------------------------
+@ifset PUBLISH
+@macro FIXME-pxref{string}
+@pxref{string}
+@end macro
+@end ifset
+
+@ifclear PUBLISH
 @macro FIXME-pxref{string}
 @FIXMEREF{see,\string\}
 @end macro
+@end ifclear
 
 @c ------------------------------------------------------------------
 @c @FIXME-xref{node} -- produces a @xref-style reference to
 @c undefined node.
 @c ------------------------------------------------------------------
+@ifset PUBLISH
+@macro FIXME-xref{string}
+@xref{string}
+@end macro
+@end ifset
+
+@ifclear PUBLISH
 @macro FIXME-xref{string}
 @FIXMEREF{See,\string\}
+@end macro
+@end ifclear
+
+@c ===================================================================
+@c The following macros are used in imprimatur.texi to produce example
+@c outputs without triggering check rules.
+@c ===================================================================
+
+@macro example-UNREVISED
+@UNREVISED
+@end macro
+
+@macro example-WRITEME
+@WRITEME
+@end macro
+
+@macro example-FIXME{string}
+@FIXME{\string\}
+@end macro
+
+@macro example-FIXME-xref{string}
+@FIXME-xref{\string\}
 @end macro

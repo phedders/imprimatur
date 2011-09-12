@@ -43,6 +43,8 @@ function report() {
 	else
 		print FILENAME ":" FNR ": (unknown)" > "/dev/stderr"
 }
+/@c imprimatur-ignore/ { ignore = FILENAME }
+ignore == FILENAME { next }
 $1 == "@WRITEME" {
 	node_locus=FILENAME ":" FNR
 	node_name="(@WRITEME) " node_name

@@ -76,12 +76,14 @@ the following definition is sufficient:
 
 where <BASE> stands for the base name of your Texinfo document (e.g.
 "foo", if it is named "foo.texi").  
-3. Include @IMPRIMATUR_MODULE_DIR@/imprimatur.mk using relative
-addressing.  For example, if your documentation subdirectory is
-located at the same nesting level as the directory you cloned
-Imprimatur to, use:
+3. Include imprimatur.mk using relative addressing.  For example, if
+your documentation subdirectory is located at the same nesting level
+as the directory you cloned Imprimatur to, use:
 
-  include ../@IMPRIMATUR_MODULE_DIR@/imprimatur.mk
+  include ../imprimatur/imprimatur.mk
+
+Do not use Automake substitutions nor Makefile variables in the
+argument to include.
 4. If you plan to use the `check-docs.sh' script, define the following
 variable:
 
@@ -92,7 +94,7 @@ For example:
   
   AM_MAKEINFOFLAGS = @IMPRIMATUR_MAKEINFOFLAGS@
   imprimatur_INPUT=$(info_TEXINFOS) $(foo_TEXINFOS)
-  include ../@IMPRIMATUR_MODULE_DIR@/imprimatur.mk
+  include ../imprimatur/imprimatur.mk
   CHECK_DOCS=$(top_srcdir)/@IMPRIMATUR_MODULE_DIR@/check-docs.sh
 
 ** Include `rendition.texi' into your main Texinfo source.
