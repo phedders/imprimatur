@@ -23,7 +23,7 @@ imprimatur-format:
 imprimatur-refs:
 	@for file in $(imprimatur_INPUT); \
 	do \
-          grep -q '@c imprimatur-ignore' $$file && continue; \
+          grep -q '^@c imprimatur-ignore' $$file && continue; \
 	  sed -e = $$file | \
            sed -n 'N;/@FIXME-.*ref/{s/\(^[0-9][0-9]*\).*@FIXME-.*ref{\([^}]*\)}.*/'$$file':\1: \2/gp}'; \
 	done > $@-t; \
@@ -38,7 +38,7 @@ imprimatur-refs:
 imprimatur-fixmes:
 	@for file in $(imprimatur_INPUT); \
 	do \
-          grep -q '@c imprimatur-ignore' $$file && continue; \
+          grep -q '^@c imprimatur-ignore' $$file && continue; \
 	  sed -e = $$file | \
            sed -n 'N;/@FIXME{/{s/\(^[0-9][0-9]*\).*@FIXME{\([^}]*\).*/'$$file':\1: \2/gp}'; \
 	done > $@-t; \
@@ -52,7 +52,7 @@ imprimatur-fixmes:
 	fi
 
 imprimatur-writemes:
-	@files=`grep -c '@c imprimatur-ignore' $(imprimatur_INPUT) | sed -n 's/:0$$//p'`; \
+	@files=`grep -c '^@c imprimatur-ignore' $(imprimatur_INPUT) | sed -n 's/:0$$//p'`; \
 	test -n "$$files" && grep -Hn '^[ \t]*@WRITEME' $$files > $@-t; \
 	if [ -s $@-t ]; then \
 	  echo "Empty nodes:"; \
@@ -70,7 +70,7 @@ imprimatur-empty-nodes:
 	        $(info_TEXINFOS)
 
 imprimatur-unrevised:
-	@files=`grep -c '@c imprimatur-ignore' $(imprimatur_INPUT) | sed -n 's/:0$$//p'`; \
+	@files=`grep -c '^@c imprimatur-ignore' $(imprimatur_INPUT) | sed -n 's/:0$$//p'`; \
 	grep -Hn '^[ \t]*@UNREVISED' $$files > $@-t; \
 	if [ -s $@-t ]; then \
 	  echo "Unrevised nodes:"; \

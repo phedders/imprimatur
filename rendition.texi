@@ -1,4 +1,4 @@
-@c This file is part of Imprimatur. imprimatur-ignore
+@c This file is part of Imprimatur.
 @c Copyright (C) 2001-2011 Sergey Poznyakoff
 @c
 @c Imprimatur is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 @c imprimatur-ignore
 
 @c ======================================================================
-@c This file implements Fra@,{c}ois Pinard's concept of 'renditions':
+@c This file implements Fran@,{c}ois Pinard's concept of 'renditions':
 @c
 @c A document has three levels of rendition: PUBLISH, DISTRIB or PROOF,
 @c as decided by @set symbols.  The PUBLISH rendition does not show
@@ -61,14 +61,16 @@
 @macro editorsnote{text}
 @ifinfo
 @quotation
-@center ==========================================================
-@center @strong{Editor's note:} \text\@*
-@center ==========================================================
+@center ==================================================================
+@center @strong{Editor's note:}
+\text\@*
+@center ==================================================================
 @end quotation
 @end ifinfo
 @ifnotinfo
 @cartouche
-@center @strong{Editor's note:} \text\
+@center @strong{Editor's note:}
+\text\
 @end cartouche
 @end ifnotinfo
 @end macro
@@ -140,7 +142,6 @@ otherwise inaccurate.  This message will disappear, once this node revised.}
 @c ------------------------------------------------------------------
 @ifset PROOF
 @macro FIXME{string}
-@sp 1
 @editorsnote{\string\}
 @w{}
 @end macro

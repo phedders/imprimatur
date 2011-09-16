@@ -17,7 +17,7 @@
 
 usage() {
   cat <<EOT
-usage: $0 item code-sed doc-sed sources -- args...
+usage: $0 item class code-sed doc-sed sources -- makeinfo-args...
 EOT
 }
 

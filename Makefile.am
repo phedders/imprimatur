@@ -57,7 +57,10 @@ check-macros:
 	$(MAKEINFO) $(AM_MAKEINFOFLAGS) $(MAKEINFOFLAGS) -I $(srcdir) -E - \
 		$(info_TEXINFOS) 
 
-check-docs: imprimatur-basic-checks check-rules check-macros
+check-docs-am: imprimatur-basic-checks check-rules check-macros
+
+check-docs:
+	$(MAKE) -k check-docs-am
 
 GENDOCS=gendocs.sh 
 
