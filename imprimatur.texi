@@ -974,7 +974,7 @@ for the shell.
 
 @item code-sed
 A regular expression to extract item identifiers from declarations.  It
-must use parenthesized group to mark the identifier (@pxref{The "s"
+must use a parenthesized group to mark the identifier (@pxref{The "s"
 Command,,REPLACEMENT,sed,Sed Manual}), and the @samp{p} flag or
 command to output it (@pxref{Common Commands,,Print out the pattern
 space, sed, Sed Manual}).
@@ -1004,8 +1004,8 @@ A list of source files to apply @var{code-sed} to.
 
 @item makeinfo-args
 A command which produces preprocessed Texinfo source at its output.
-Normally, it is @command{makeinfo -E -}.  The @var{doc-sed} expression
-is applied to its output.
+Normally, it is @command{makeinfo -E -} with some additional
+arguments.  The @var{doc-sed} expression is applied to its output.
 @end table
 
 The @file{check-docs.sh} script collects identifiers produced by the
