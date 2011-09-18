@@ -85,8 +85,14 @@
 @c The \errmessage function is used to indicate error when producing
 @c TeX output.  Otherwise, a call to undefined macro with
 @c self-explaining name ``Empty-node-in-publish-rendition!'' is used.
+@c
+@c Texi2html (at least up to v. 1.78 mishandles unmacro directive, so
+@c it is disabled for html output.
 @c ------------------------------------------------------------------
+@ifnothtml
 @unmacro Empty-node-in-publish-rendition!
+@end ifnothtml
+
 @macro WRITEME
 @ifset PUBLISH
 @iftex
@@ -117,7 +123,10 @@
 @c self-explaining name ``Unrevised-node-in-publish-rendition!'' is
 @c used.
 @c ------------------------------------------------------------------
+@ifnothtml
 @unmacro Unrevised-node-in-publish-rendition!
+@end ifnothtml
+
 @macro UNREVISED
 @ifset PUBLISH
 @iftex
@@ -182,20 +191,9 @@ otherwise inaccurate.  This message will disappear, once this node revised.}
 @c for various output formats.
 @c ------------------------------------------------------------------
 
-@ifhtml
-@macro FIXMEREF{text,string}
-@html
-\text\ <span class="deadlink">\string\</span> 
-@end html
-@deadlink{}
-@end macro
-@end ifhtml
-
-@ifnothtml
 @macro FIXMEREF{text,string}
 \text\ @i{\string\}@deadlink{}
 @end macro
-@end ifnothtml
 
 @c ------------------------------------------------------------------
 @c @FIXME-ref{node} -- produces a @ref-style reference to undefined

@@ -54,12 +54,14 @@ AC_DEFUN([_IMPRIMATUR_OPTION_SWITCH],
 AC_DEFUN([_IMPRIMATUR_SET_OPTIONS],
 [m4_foreach_w([_IMPRIMATUR_Option], [$1], [_IMPRIMATUR_SET_OPTION(_IMPRIMATUR_Option)])])
 
-# IMPRIMATUR_INIT([DIR],[RENDITION])
+# IMPRIMATUR_INIT([DIR],[OPTIONS])
 # DIR       - Directory in the source tree where imprimatur has been cloned.
 #             Default is "imptimatur".
-# RENDITION - Documentation rendition.  Default is DISTRIB for stable releases
-#             and PROOF for alpha releases.  The release type is determined by
-#             the version number, assuming GNU versioning.
+# OPTIONS   - A whitespace-separated list of options.  Valid options are:
+#             any one of PROOF, DISTRIB or PUBLISH to set the default
+#             rendition, frenchspacing to declare that French sentence
+#             spacing should be assumed, and makedoc to enable rules for
+#             building imprimatur documentation.
 AC_DEFUN([IMPRIMATUR_INIT],[
  m4_pushdef([imprimaturdir],[m4_if([$1],,[imprimatur],[$1])])
  AC_SUBST([IMPRIMATUR_MODULE_DIR],imprimaturdir)
