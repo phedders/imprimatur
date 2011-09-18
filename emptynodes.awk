@@ -43,6 +43,8 @@ function report() {
 	else
 		print FILENAME ":" FNR ": (unknown)" > "/dev/stderr"
 }
+skip_to && $1 == "@end" && $2 == skip_to { skip_to = ""; next }
+skip_to { next }
 /@c imprimatur-ignore/ { ignore = FILENAME }
 ignore == FILENAME { next }
 $1 == "@WRITEME" {
@@ -53,6 +55,7 @@ $1 == "@WRITEME" {
 	next
 }
 $1 == "@bye" { state = 0; node_locus = "" }
+$1 == "@macro" { skip_to = "macro"; next }
 $1 == "@include" && scriptname {
 	ofile = $2
 	cmd = "find " includepath " -maxdepth 1 -name " ofile " -print -quit"
