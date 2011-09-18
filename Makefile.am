@@ -69,7 +69,8 @@ manual:
 	TEXINPUTS=$(srcdir):$(top_srcdir)/build-aux:$(TEXINPUTS) \
 	 MAKEINFO="$(MAKEINFO) $(MAKEINFOFLAGS) $(AM_MAKEINFOFLAGS)" \
 	 TEXI2DVI="$(TEXI2DVI)" \
-         TEXI2HTML="texi2html $(AM_MAKEINFOFLAGS)" \
+         TEXI2HTML="$(TEXI2HTML)" \
+	 GENDOCS_TEMPLATE_DIR="$(GENDOCS_TEMPLATE_DIR)" \
 	 $(GENDOCS) --texi2html imprimatur 'Imprimatur manual'
 
 manual.tar.bz2: manual
