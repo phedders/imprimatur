@@ -58,14 +58,14 @@ AC_DEFUN([_IMPRIMATUR_SET_OPTIONS],
 # DIR       - Directory in the source tree where imprimatur has been cloned.
 #             Default is "imptimatur".
 # OPTIONS   - A whitespace-separated list of options.  Valid options are:
-#             any one of PROOF, DISTRIB or PUBLISH to set the default
-#             rendition, frenchspacing to declare that French sentence
-#             spacing should be assumed, and makedoc to enable rules for
-#             building imprimatur documentation.
+#             (1) any one of PROOF, DISTRIB or PUBLISH to set the default
+#             rendition, (2) frenchspacing to declare that French sentence
+#             spacing should be assumed, (3) makedoc to enable rules for
+#             building imprimatur documentation, and (4) dist-info to
+#             build and distribute imprimatur.info file (requires makedoc).
 AC_DEFUN([IMPRIMATUR_INIT],[
  m4_pushdef([imprimaturdir],[m4_if([$1],,[imprimatur],[$1])])
  AC_SUBST([IMPRIMATUR_MODULE_DIR],imprimaturdir)
- AC_CONFIG_FILES(imprimaturdir[/Makefile])
  _IMPRIMATUR_SET_OPTIONS([$2])
  AC_SUBST(RENDITION)
  _IMPRIMATUR_OPTION_SWITCH([PROOF],[RENDITION=PROOF],
@@ -94,5 +94,11 @@ AC_DEFUN([IMPRIMATUR_INIT],[
                  [_IMPRIMATUR_IF_OPTION_SET([makedoc],[true],[false])])
  AM_CONDITIONAL([IMPRIMATUR_COND_FRENCHSPACING],
                  [_IMPRIMATUR_IF_OPTION_SET([frenchspacing],[true],[false])])
+ AM_CONDITIONAL([IMPRIMATUR_COND_DIST_INFO],
+                 [_IMPRIMATUR_IF_OPTION_SET([dist-info],[true],[false])])
+ AC_CONFIG_FILES(imprimaturdir[/Makefile])		 
+ AM_COND_IF([IMPRIMATUR_COND_MAKEDOC],dnl	 
+            [AC_CONFIG_FILES(imprimaturdir[/Makedoc])])
+		 
  m4_popdef([imprimaturdir])
 ])

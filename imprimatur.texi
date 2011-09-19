@@ -7,7 +7,7 @@
 
 @c The UPDATED date is updated automatically by the Emacs magic at the
 @c end of this file.
-@set UPDATED 18 September 2011
+@set UPDATED 19 September 2011
 @set VERSION 1.0
 
 @c This document contains examples of all the rendition macros, so it
@@ -538,10 +538,38 @@ document.  @xref{imprimatur-check-sentence-spacing}.
 @end defvr
 
 @defvr {Option} makedoc
-Enables Makefile rules for building @command{Imprimatur}
-documentation.  This is intended mostly for @command{Imprimatur}
-maintainers, but you may use this option to build your own, perhaps
-customized, copies of this manual.
+@flindex Makedoc
+Enables creation of a separate makefile for building
+@command{Imprimatur} documentation.  This file is called
+@file{Makedoc} and contains rules for building this manual in various
+output formats.  With this option on, the @file{Makefile} in the
+@file{imprimatur} subdirectory will also contain several additional
+shortcut rules, namely:
+
+@table @option
+@item make info
+@itemx make imprimatur.info
+Creates the manual in info format (a shortcut for @command{make -f
+Makedoc imprimatur.info}).
+
+@item make pdf
+Creates a PDF output (a shortcut for @command{make -f Makedoc pfd}).
+
+@item make dvi
+Creates a DVI output.
+
+@item make ps
+Creates a PostScript output.
+@end table
+
+This is intended mostly for @command{Imprimatur} maintainers, but you
+may use this option to build your own, perhaps customized, copies of
+this manual.
+@end defvr
+
+@defvr {Option} dist-info
+Distribute the @file{imprimatur.info} file.  This option is valid only
+in conjunction with @option{makedoc}.
 @end defvr
 @end deffn
 

@@ -9,12 +9,10 @@ Imprimatur.  It is *not* intended as a replacement for the
 documentation, and is provided as a brief reference only. 
 The complete documentation in Texinfo format is included.  To build
 it, change to the imprimatur subdirectory and run `makeinfo
-imprimatur'.  Once the package is properly installed (see below), you
-can use the `make' command to create documentation in various formats.
-For example, `make' without arguments will create `imprimatur.info',
-`make pdf' will create `imprimatur.pdf', etc.
+imprimatur'.
 
-Complete documentation is available online at the following URL:
+Complete documentation in various formats is available online from the
+following URL:
 
   http://www.gnu.org.ua/software/imprimatur/manual
 
