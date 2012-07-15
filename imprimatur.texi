@@ -7,7 +7,7 @@
 
 @c The UPDATED date is updated automatically by the Emacs magic at the
 @c end of this file.
-@set UPDATED 19 September 2011
+@set UPDATED 15 July 2012
 @set VERSION 1.0
 
 @c This document contains examples of all the rendition macros, so it
@@ -397,7 +397,7 @@ all.
 
 It is supposed that you will be progressively @dfn{resolving} your
 @samp{@@FIXME}s while reviewing your document.  During this process
-you can obtain a listing of all pending @samp{@@FIXME} notes bu
+you can obtain a listing of all pending @samp{@@FIXME} notes by
 running @code{make imprimatur-fixmes}, e.g.:
 
 @example
@@ -542,7 +542,14 @@ document.  @xref{imprimatur-check-sentence-spacing}.
 Enables creation of a separate makefile for building
 @command{Imprimatur} documentation.  This file is called
 @file{Makedoc} and contains rules for building this manual in various
-output formats.  With this option on, the @file{Makefile} in the
+output formats.  It is the responsibility of the caller to include
+@file{Makedoc.am} to the list of configured files, e.g.:
+
+@example
+AC_CONFIG_FILES(imprimatur/Makedoc.am)
+@end example
+
+With this option on, the @file{Makefile} in the
 @file{imprimatur} subdirectory will also contain several additional
 shortcut rules, namely:
 
@@ -562,8 +569,8 @@ Creates a DVI output.
 Creates a PostScript output.
 @end table
 
-This is intended mostly for @command{Imprimatur} maintainers, but you
-may use this option to build your own, perhaps customized, copies of
+This option is intended mostly for @command{Imprimatur} maintainers,
+but you may use it to build your own, perhaps customized, copies of
 this manual.
 @end defvr
 
@@ -912,6 +919,20 @@ If French spacing is declared, the diagnostics will read:
 @group
 Sources contain double-space sentence separators.
 Run make imprimatur-fix-sentence-spacing to fix.
+@end group
+@end example
+
+Notice, that this rule may sometimes give false positives.  In
+particular, this happens when a middle initial is used (as in
+@samp{Richard P.@: Feynman}) or when an abbreviation is followed
+by a Texinfo command or upper-case letter, as in @samp{i.e.@: @@sc@{smtp@}}.
+To avoid such false positives, use the @samp{@@:} Texinfo command
+(@pxref{Not Ending a Sentence,,,texinfo,Texinfo Manual}).  For example:
+
+@example
+@group
+or IP address enclosed in square brackets,
+e.g.@@: @@samp@{[127.0.0.1]@}
 @end group
 @end example
 @end deffn

@@ -98,7 +98,7 @@ AC_DEFUN([IMPRIMATUR_INIT],[
                  [_IMPRIMATUR_IF_OPTION_SET([dist-info],[true],[false])])
  AC_CONFIG_FILES(imprimaturdir[/Makefile])		 
  AM_COND_IF([IMPRIMATUR_COND_MAKEDOC],dnl	 
-            [AC_CONFIG_FILES(imprimaturdir[/Makedoc])])
+            [AC_MSG_NOTICE([Add imprimaturdir[/Makedoc] to your config files])])
 		 
  m4_popdef([imprimaturdir])
 ])
